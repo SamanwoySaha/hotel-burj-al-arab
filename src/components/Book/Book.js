@@ -5,10 +5,10 @@ import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
-    KeyboardTimePicker,
     KeyboardDatePicker,
 } from '@material-ui/pickers';
 import Button from '@material-ui/core/Button';
+import Bookings from '../Bookings/Bookings';
 
 const Book = () => {
     const { bedType } = useParams();
@@ -26,12 +26,19 @@ const Book = () => {
 
     const handleCheckOutDate = (date) => {
         const newDates = {...selectedDate}
-        newDates.checkIn =  date;
+        newDates.checkOut =  date;
         setSelectedDate(newDates);
     };
 
     const handleBooking = () => {
-        
+        const newBooking = {...loggedInUser, ...selectedDate};
+        fetch('http://localhost:5000/addBooking', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(newBooking),
+        })
+        .then(res => res.json())
+        .then(data => console.log(data))
     }
 
     return (
@@ -55,10 +62,12 @@ const Book = () => {
                         }}
                     />
                     <KeyboardDatePicker
-                        margin="normal"
-                        id="date-picker-dialog"
-                        label="Check Out Date"
+                        disableToolbar
+                        variant="inline"
                         format="dd/MM/yyyy"
+                        margin="normal"
+                        id="date-picker-inline"
+                        label="Check Out Date"
                         value={selectedDate.checkOut}
                         onChange={handleCheckOutDate}
                         KeyboardButtonProps={{
@@ -66,8 +75,9 @@ const Book = () => {
                         }}
                     />
                 </Grid>
-                <Button onclick={handleBooking} variant="contained" color="primary">Book Now</Button>
+                <Button onClick={handleBooking} variant="contained" color="primary">Book Now</Button>
             </MuiPickersUtilsProvider>
+            <Bookings></Bookings>
         </div>
     );
 };
